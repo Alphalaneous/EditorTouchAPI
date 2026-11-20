@@ -1,0 +1,29 @@
+{
+	"geode": "6.0.0-beta.1",
+	"gd": {
+		"win": "2.2091",
+		"android": "2.2091",
+		"mac": "2.2091",
+		"ios": "2.2091"
+	},
+	"id": "alphalaneous.editor-touch-api",
+	"name": "Editor Touch API",
+	"version": "v1.0.0-beta.1",
+	"developer": "Alphalaneous",
+	"description": "",
+	"dependencies": {
+		"alphalaneous.alphas-ui-pack": ">=1.5.0-beta.1"
+	},
+	"api": {
+        "include": [
+            "include/*.hpp"
+        ]
+    },
+	"tags": [
+		"editor", "developer", "api"
+	],
+	"links": {
+        "homepage": "https://linktr.ee/Alphalaneous",
+        "source": "https://github.com/Alphalaneous/EditorTouchAPI"
+    }
+}
