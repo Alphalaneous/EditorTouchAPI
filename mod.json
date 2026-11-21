@@ -8,7 +8,7 @@
 	},
 	"id": "alphalaneous.editor-touch-api",
 	"name": "Editor Touch API",
-	"version": "v1.0.0-beta.1",
+	"version": "v1.0.0-beta.2",
 	"developer": "Alphalaneous",
 	"description": "",
 	"dependencies": {
