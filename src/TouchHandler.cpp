@@ -1,11 +1,8 @@
 #include "TouchHandler.hpp"
 #include "CCMenu.hpp"
 #include "EditorUI.hpp"
-#include <Geode/binding/FLAlertLayer.hpp>
 #include <alphalaneous.alphas-ui-pack/Utils.hpp>
 #include "../include/EditorTouch.hpp"
-#include "GUI/CCControlExtension/CCScale9Sprite.h"
-#include "Geode/platform/windows.hpp"
 
 namespace alpha::editor_touch {
 
