@@ -1,5 +1,4 @@
 #include "EditorUI.hpp"
-#include "Geode/loader/Log.hpp"
 #include "TouchHandler.hpp"
 #include "../include/Events.hpp"
 #include "../include/API.hpp"
@@ -130,7 +129,8 @@ void TouchEditorUI::setupEvents() {
         m_findSnap = false;
 
         if (m_selectedObjects->count() != 0) {
-            findSnapObject(point, 0.f);
+            auto nodeSpace = m_editorLayer->m_objectLayer->convertToNodeSpace(touch->getLocation());
+            findSnapObject(nodeSpace, 0.f);
         }
         else if (!m_selectedObject) {
             m_editingObject = true;
