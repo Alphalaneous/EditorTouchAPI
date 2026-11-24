@@ -1,3 +1,6 @@
+# 1.0.0-beta.4
+
+
 # 1.0.0-beta.3
 - Fix free move not working when more than one object is selected
 - Add back support for all platforms, though it might break and crash on some.

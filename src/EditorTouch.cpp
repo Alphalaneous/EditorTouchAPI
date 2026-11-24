@@ -6,7 +6,7 @@
 using namespace alpha::editor_touch;
 
 void TouchEditorUI::setupEvents() {
-    addEventListener(events::SnapToGrid(), [this] (CCPoint& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::SnapToGrid(), [this] (CCPoint& ret, cocos2d::CCTouch*& touch) {
         auto point = m_editorLayer->m_objectLayer->convertToNodeSpace(touch->getLocation());
         
         float grid = m_editorLayer->m_drawGridLayer->m_gridSize;
@@ -21,11 +21,11 @@ void TouchEditorUI::setupEvents() {
         });
     });
 
-    addEventListener(events::StopSwipeTrigger(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::StopSwipeTrigger(), [this] (cocos2d::CCTouch*& touch) {
         stopActionByTag(123);
     });
 
-    addEventListener(events::CanFreeMove(), [this] (bool& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::CanFreeMove(), [this] (bool& ret, cocos2d::CCTouch*& touch) {
         if (m_spaceSwiping) {
             ret = false;
             return;
@@ -41,7 +41,7 @@ void TouchEditorUI::setupEvents() {
         ret = (m_selectedMode == 3);
     });
 
-    addEventListener(events::RefreshSelectionUI(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::RefreshSelectionUI(), [this] (cocos2d::CCTouch*& touch) {
         if (!m_selectedObject && m_selectedObjects->count() == 0) {
             deactivateRotationControl();
             deactivateScaleControl();
@@ -52,11 +52,11 @@ void TouchEditorUI::setupEvents() {
         updateScaleControl();
     });
 
-    addEventListener(events::GetSelectableObject(), [this] (GameObject*& ret, cocos2d::CCTouch* touch, cocos2d::CCArray* objects) {
+    addEventListener(events::GetSelectableObject(), [this] (GameObject*& ret, cocos2d::CCTouch*& touch, cocos2d::CCArray*& objects) {
         GameObject* picked = nullptr;
 
         for (auto object : CCArrayExt<GameObject, false>(objects)) {
-            if (object->m_isSelected || (picked && object->m_unk460 >= picked->m_unk460)) {
+            if (object->m_isSelected || (picked && object->m_cycleIndex >= picked->m_cycleIndex)) {
                 continue;
             }
 
@@ -68,10 +68,10 @@ void TouchEditorUI::setupEvents() {
         ret = picked;
     });
 
-    addEventListener(events::SelectPickedObject(), [this] (cocos2d::CCTouch* touch, GameObject* object) {
+    addEventListener(events::SelectPickedObject(), [this] (cocos2d::CCTouch*& touch, GameObject*& object) {
         if (!object) return;
 
-        object->m_unk460 = m_cycledObjectIndex;
+        object->m_cycleIndex = m_cycledObjectIndex;
         createUndoSelectObject(false);
 
         if (!m_swipeActive) {
@@ -84,7 +84,7 @@ void TouchEditorUI::setupEvents() {
         EditorSFXManager::sharedState()->playAction(121);
     });
     
-    addEventListener(events::DeselectLastObject(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::DeselectLastObject(), [this] (cocos2d::CCTouch*& touch) {
         if (m_selectedObject) {
             stopActionByTag(124);
 
@@ -103,7 +103,7 @@ void TouchEditorUI::setupEvents() {
         }
     });
 
-    addEventListener(events::FindSnapObjectAtPos(), [this] (GameObject*& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::FindSnapObjectAtPos(), [this] (GameObject*& ret, cocos2d::CCTouch*& touch) {
         auto objects = m_editorLayer->objectsAtPosition(m_editorLayer->m_objectLayer->convertToNodeSpace(touch->getLocation()));
 
         for (auto object : CCArrayExt<GameObject, false>(objects)) {
@@ -115,7 +115,7 @@ void TouchEditorUI::setupEvents() {
         ret = nullptr;
     });
 
-    addEventListener(events::InitializeSnapObject(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::InitializeSnapObject(), [this] (cocos2d::CCTouch*& touch) {
         auto point = touch->getLocation();
         
         m_snapSelected = false;
@@ -163,7 +163,7 @@ void TouchEditorUI::setupEvents() {
         }
     });
 
-    addEventListener(events::CreateFreeMoveUndo(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::CreateFreeMoveUndo(), [this] (cocos2d::CCTouch*& touch) {
         if (m_noSnapUndo) return;
 
         auto undo = createUndoObject(UndoCommand::Transform, true);
@@ -177,14 +177,14 @@ void TouchEditorUI::setupEvents() {
         }
     });
 
-    addEventListener(events::BeginFreeMove(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::BeginFreeMove(), [this] (cocos2d::CCTouch*& touch) {
         initializeSnapObject(touch);
 
         m_cameraTest = m_editorLayer->m_objectLayer->convertToNodeSpace(m_swipeStart);
         createFreeMoveUndo(touch);
     });
 
-    addEventListener(events::HandleTouchControlsBegin(), [this] (bool& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::HandleTouchControlsBegin(), [this] (bool& ret, cocos2d::CCTouch*& touch) {
         if (m_rotationTouchID == -1 && m_rotationControl->isVisible() && m_rotationControl->ccTouchBegan(touch, nullptr)) {
             m_rotationTouchID = touch->getID();
             ret = true;
@@ -206,7 +206,7 @@ void TouchEditorUI::setupEvents() {
         ret = false;
     });
 
-    addEventListener(events::HandleTouchControlsMove(), [this] (bool& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::HandleTouchControlsMove(), [this] (bool& ret, cocos2d::CCTouch*& touch) {
         int id = touch->getID();
 
         if (m_rotationTouchID == id) {
@@ -233,7 +233,7 @@ void TouchEditorUI::setupEvents() {
         ret = false;
     });
 
-    addEventListener(events::HandleTouchControlsEnd(), [this] (bool& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::HandleTouchControlsEnd(), [this] (bool& ret, cocos2d::CCTouch*& touch) {
         int id = touch->getID();
 
         if (m_rotationTouchID == id) {
@@ -260,7 +260,7 @@ void TouchEditorUI::setupEvents() {
         ret = false;
     });
 
-    addEventListener(events::BeginPinchGesture(), [this] (bool& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::BeginPinchGesture(), [this] (bool& ret, cocos2d::CCTouch*& touch) {
         if (m_touchID == -1 || m_unk2fc != -1 || m_unk31c) {
             ret = false;
             return;
@@ -287,7 +287,7 @@ void TouchEditorUI::setupEvents() {
         ret = true;
     });
 
-    addEventListener(events::MovePinchGesture(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::MovePinchGesture(), [this] (cocos2d::CCTouch*& touch) {
         auto previousMid = (m_unkPoint300 + m_unkPoint308) / 2.f;
         auto point = touch->getLocation();
 
@@ -325,14 +325,14 @@ void TouchEditorUI::setupEvents() {
         updateZoom(zoom, mid);
     });
 
-    addEventListener(events::EndPinchGesture(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::EndPinchGesture(), [this] (cocos2d::CCTouch*& touch) {
         m_unk2fc = -1;
         m_touchID = -1;
         m_unk31c = false;
         m_isDraggingCamera = false;
     });
 
-    addEventListener(events::SwipeTouchMoved(), [this] (bool& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::SwipeTouchMoved(), [this] (bool& ret, cocos2d::CCTouch*& touch) {
         if (m_spaceSwiping) {
             ret = false;
             return;
@@ -358,7 +358,7 @@ void TouchEditorUI::setupEvents() {
         ret = true;
     });
 
-    addEventListener(events::SelectSwipeRectangle(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::SelectSwipeRectangle(), [this] (cocos2d::CCTouch*& touch) {
         auto objectLayer = m_editorLayer->m_objectLayer;
 
         auto start = objectLayer->convertToNodeSpace(alpha::editor_touch::TouchHandler::rotatePoint(m_swipeStart, true));
@@ -389,7 +389,7 @@ void TouchEditorUI::setupEvents() {
         updateScaleControl();
     });
 
-    addEventListener(events::SelectSwipeTap(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::SelectSwipeTap(), [this] (cocos2d::CCTouch*& touch) {
         auto objectLayer = m_editorLayer->m_objectLayer;
         auto end = objectLayer->convertToNodeSpace(m_swipeEnd);
 
@@ -397,7 +397,7 @@ void TouchEditorUI::setupEvents() {
         selectPickedObject(touch, getSelectableObject(touch, objects));
     });
 
-    addEventListener(events::HandleSwipeSelection(), [this] (cocos2d::CCTouch* touch, bool tapped) {
+    addEventListener(events::HandleSwipeSelection(), [this] (cocos2d::CCTouch*& touch, bool& tapped) {
         if (!m_swipeActive || tapped) return;
 
         if (m_swipeStart.getDistance(touch->getLocation()) < 2.f) {
@@ -408,7 +408,7 @@ void TouchEditorUI::setupEvents() {
         }
     });
 
-    addEventListener(events::MoveSelectionBy(), [this] (cocos2d::CCTouch* touch, const cocos2d::CCPoint& offset) {
+    addEventListener(events::MoveSelectionBy(), [this] (cocos2d::CCTouch*& touch, cocos2d::CCPoint& offset) {
         if (m_selectedObjects->count() == 0) {
             moveObject(m_selectedObject, offset);
             return;
@@ -418,7 +418,7 @@ void TouchEditorUI::setupEvents() {
         }
     });
 
-    addEventListener(events::MoveSelectionBy(), [this] (cocos2d::CCTouch* touch, const cocos2d::CCPoint& offset) {
+    addEventListener(events::MoveSelectionBy(), [this] (cocos2d::CCTouch*& touch, cocos2d::CCPoint& offset) {
         m_pivotPoint = m_pivotPoint + offset;
 
         if (m_rotationControl->isVisible()) {
@@ -433,7 +433,7 @@ void TouchEditorUI::setupEvents() {
         }
     });
 
-    addEventListener(events::ShouldContinueSwipe(), [this] (bool& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::ShouldContinueSwipe(), [this] (bool& ret, cocos2d::CCTouch*& touch) {
         if (m_continueSwipe) {
             ret = true;
             return;
@@ -446,7 +446,7 @@ void TouchEditorUI::setupEvents() {
         ret = m_continueSwipe;
     });
 
-    addEventListener(events::MoveFreeMoveObject(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::MoveFreeMoveObject(), [this] (cocos2d::CCTouch*& touch) {
         if (!shouldContinueSwipe(touch)) {
             stopSwipeTrigger(touch);
             return;
@@ -478,7 +478,7 @@ void TouchEditorUI::setupEvents() {
         stopSwipeTrigger(touch);
     });
 
-    addEventListener(events::MoveCamera(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::MoveCamera(), [this] (cocos2d::CCTouch*& touch) {
         auto point = touch->getLocation();
 
         if (!m_isDraggingCamera) {
@@ -501,7 +501,7 @@ void TouchEditorUI::setupEvents() {
         updateSlider();
     });
 
-    addEventListener(events::SnapFreeMoveObject(), [this] (bool& ret, cocos2d::CCTouch* touch, cocos2d::CCPoint& offset) {
+    addEventListener(events::SnapFreeMoveObject(), [this] (bool& ret, cocos2d::CCTouch*& touch, cocos2d::CCPoint& offset) {
         if (!m_snapObjectExists || !m_continuousSnap || !m_snapObject) {
             ret = false;
             return;
@@ -538,7 +538,7 @@ void TouchEditorUI::setupEvents() {
         ret = true;
     });
 
-    addEventListener(events::FinishFreeMove(), [this] (cocos2d::CCTouch* touch, bool dropSnapped) {
+    addEventListener(events::FinishFreeMove(), [this] (cocos2d::CCTouch*& touch, bool& dropSnapped) {
         if (!m_snapObject || !m_snapObjectExists || !m_continuousSnap) return;
 
         EditorSFXManager::sharedState()->playAction(dropSnapped ? 106 : 105);
@@ -552,7 +552,7 @@ void TouchEditorUI::setupEvents() {
         }
     });
 
-    addEventListener(events::CommitFreeMoveUndo(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::CommitFreeMoveUndo(), [this] (cocos2d::CCTouch*& touch) {
         if (!m_snapObject || !m_snapObjectExists || !m_continuousSnap) return;
 
         if (m_snapObject->getPosition().equals(m_snapPosition)) {
@@ -567,7 +567,7 @@ void TouchEditorUI::setupEvents() {
         }
     });
 
-    addEventListener(events::BeginEditorTouch(), [this] (bool& ret, cocos2d::CCTouch* touch) {
+    addEventListener(events::BeginEditorTouch(), [this] (bool& ret, cocos2d::CCTouch*& touch) {
         m_swipeStart = touch->getLocation();
 
         if (m_editorLayer->m_playbackMode == PlaybackMode::Playing) {
@@ -618,7 +618,7 @@ void TouchEditorUI::setupEvents() {
         ret = true;
     });
 
-    addEventListener(events::MoveEditorTouch(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::MoveEditorTouch(), [this] (cocos2d::CCTouch*& touch) {
         if (m_unk31c) {
             movePinchGesture(touch);
             return;
@@ -638,7 +638,7 @@ void TouchEditorUI::setupEvents() {
         moveCamera(touch);
     });
 
-    addEventListener(events::EndEditorTouch(), [this] (cocos2d::CCTouch* touch) {
+    addEventListener(events::EndEditorTouch(), [this] (cocos2d::CCTouch*& touch) {
         bool swipeCycle = GameManager::get()->getGameVariable(GameVar::SwipeCycleMode);
 
         auto point = touch->getLocation();
@@ -666,7 +666,7 @@ void TouchEditorUI::setupEvents() {
         resetTouchState(touch, activateControls);
     });
 
-    addEventListener(events::HandleTap(), [this] (cocos2d::CCTouch* touch, bool tapped, bool doubleTapped, float distance) {
+    addEventListener(events::HandleTap(), [this] (cocos2d::CCTouch*& touch, bool& tapped, bool& doubleTapped, float& distance) {
         if (m_swipeActive && !tapped) {
             handleSwipeSelection(touch, tapped);
             return;
@@ -694,7 +694,7 @@ void TouchEditorUI::setupEvents() {
 
         if (!picked) return;
 
-        picked->m_unk460 = m_cycledObjectIndex;
+        picked->m_cycleIndex = m_cycledObjectIndex;
         createUndoSelectObject(false);
 
         if (!m_swipeActive) {
@@ -710,7 +710,7 @@ void TouchEditorUI::setupEvents() {
         selectObjects(CCArray::createWithObject(picked), false);
     });
 
-    addEventListener(events::ResetTouchState(), [this] (cocos2d::CCTouch* touch, bool activateControls) {
+    addEventListener(events::ResetTouchState(), [this] (cocos2d::CCTouch*& touch, bool& activateControls) {
         m_swipeActive = false;
         m_swipeSelected = false;
         m_snapObjectExists = false;
@@ -735,7 +735,7 @@ void TouchEditorUI::setupEvents() {
         m_lastTouchPoint = touch->getLocation();
     });
 
-    addEventListener(events::IsRightAngle(), [this] (bool& ret, cocos2d::CCTouch* touch, float rotation) {
+    addEventListener(events::IsRightAngle(), [this] (bool& ret, cocos2d::CCTouch*& touch, float& rotation) {
         ret = std::fmod(rotation, 90.f) == 0.f;
     });
 }
