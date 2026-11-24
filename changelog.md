@@ -1,5 +1,6 @@
 # 1.0.0-beta.4
-
+- Fix MoveTransformControls being registered as MoveSelectionBy
+- Rebuild with fixed bindings, shouldn't break on Android anymore. Still crashes on iOS when selectin objects; likely also a wrong binding.
 
 # 1.0.0-beta.3
 - Fix free move not working when more than one object is selected

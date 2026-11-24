@@ -418,7 +418,7 @@ void TouchEditorUI::setupEvents() {
         }
     });
 
-    addEventListener(events::MoveSelectionBy(), [this] (cocos2d::CCTouch*& touch, cocos2d::CCPoint& offset) {
+    addEventListener(events::MoveTransformControls(), [this] (cocos2d::CCTouch*& touch, cocos2d::CCPoint& offset) {
         m_pivotPoint = m_pivotPoint + offset;
 
         if (m_rotationControl->isVisible()) {
